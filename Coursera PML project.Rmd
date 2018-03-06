@@ -1,0 +1,53 @@
+---
+title: "Practical ML Project"
+author: "Y.K Cheong"
+date: "3/3/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setting up datasets
+```{r setting up datasets}
+setwd("~/Documents/Data Science/Practical machine Learning/Project")
+training <- read.csv("pml-training.csv", na.strings = c("", NA))
+```
+
+## Exploring data
+```{r data exploration}
+names(training)
+str(training, list.len = ncol(training))
+training[, 3:159] <- sapply(training[ , 3:159], as.numeric) # Forcing cols to numerics
+data <- training
+percNA <- apply(data, 2, function(x) sum(is.na(x))/nrow(data))  # Determine % missing data per col
+numColNA <- length(colnames(data)[colSums(is.na(data)) > 0])  # Determine number of col with NAs
+```
+
+## Data partitioning
+```{r data partition}
+data <- data[colSums(is.na(data)) == 0]  # Keeping only cols without NAs
+
+require(caret)
+inTrain <- createDataPartition(y = data$classe, p = .8, list = FALSE)
+training <- data[inTrain, ]
+testing <- data[-inTrain, ]
+```
+To understand the dataset, first we list out all variables. Data preview indicated that there are some missing values. To determine the extent of the issue, percent missing values were computed for each variable; close to 98% in each column were missing values. Of 160 variables, 100 had missing values. Subsequently, variables with missing values were dropped from the training dataset.
+
+Data was partitioned into training set and testing set, with 80% of the original data allocated to training.
+
+## Predictive modeling
+```{r predictive modeling}
+trainCtrl <- trainControl(method = "cv", number = 10, savePredictions = TRUE)
+
+treeModel <- train(classe ~., method = "rpart", trControl = trainCtrl, preProcess = "pca", data = training)
+confusionMatrix(testing$classe, predict(treeModel, testing))
+
+ldaModel <- train(classe ~., method = "lda", trControl = trainCtrl, preProcess = "pca", data = training)
+confusionMatrix(testing$classe, predict(ldaModel, testing))
+```
+Recall there are 60 variables in the data set. To reduce the number of predictors, data set was preprocessed using principal component analysis (PCA). Preprocessing was performed as an argument in the train function. Two predictive models were performed, each using k-fold (k = 10) cross validation. First predictive model was based on decision tree, or rpart method. The second model was based on linear discriminant analysis, or LDA method. Prediction accuracy of the first model was rather poor, merely at 28%. On the other hand, prediction via the LDA method was pretty good at 97% accuracy.
+
+That being said, it was concluded that the LDA method was acceptable.
