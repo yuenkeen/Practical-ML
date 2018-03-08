@@ -383,6 +383,7 @@ numColNA &lt;- length(colnames(data)[colSums(is.na(data)) &gt; 0])  # Determine 
 <div id="data-partitioning" class="section level2">
 <h2>Data partitioning</h2>
 <pre class="r"><code>data &lt;- data[colSums(is.na(data)) == 0]  # Keeping only cols without NAs
+data &lt;- data[c(-1:-7)]  # Removing X, username and other irrelevant vars
 
 require(caret)</code></pre>
 <pre><code>## Loading required package: caret</code></pre>
@@ -404,68 +405,169 @@ confusionMatrix(testing$classe, predict(treeModel, testing))</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1116    0    0    0    0
-##          B  759    0    0    0    0
-##          C  684    0    0    0    0
-##          D  643    0    0    0    0
-##          E  721    0    0    0    0
+##          A 1020    0    0   84   12
+##          B  508    0    0  149  102
+##          C  633    0    0   40   11
+##          D  345    0    0  258   40
+##          E  405    0    0   92  224
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.2845          
-##                  95% CI : (0.2704, 0.2989)
-##     No Information Rate : 1               
+##                Accuracy : 0.3829          
+##                  95% CI : (0.3676, 0.3983)
+##     No Information Rate : 0.742           
 ##     P-Value [Acc &gt; NIR] : 1               
 ##                                           
-##                   Kappa : 0               
+##                   Kappa : 0.1713          
 ##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.2845       NA       NA       NA       NA
-## Specificity                NA   0.8065   0.8256   0.8361   0.8162
-## Pos Pred Value             NA       NA       NA       NA       NA
-## Neg Pred Value             NA       NA       NA       NA       NA
-## Prevalence             1.0000   0.0000   0.0000   0.0000   0.0000
-## Detection Rate         0.2845   0.0000   0.0000   0.0000   0.0000
-## Detection Prevalence   0.2845   0.1935   0.1744   0.1639   0.1838
-## Balanced Accuracy          NA       NA       NA       NA       NA</code></pre>
+## Sensitivity            0.3504       NA       NA  0.41413  0.57584
+## Specificity            0.9051   0.8065   0.8256  0.88333  0.85937
+## Pos Pred Value         0.9140       NA       NA  0.40124  0.31068
+## Neg Pred Value         0.3263       NA       NA  0.88872  0.94847
+## Prevalence             0.7420   0.0000   0.0000  0.15881  0.09916
+## Detection Rate         0.2600   0.0000   0.0000  0.06577  0.05710
+## Detection Prevalence   0.2845   0.1935   0.1744  0.16391  0.18379
+## Balanced Accuracy      0.6278       NA       NA  0.64873  0.71760</code></pre>
 <pre class="r"><code>ldaModel &lt;- train(classe ~., method = &quot;lda&quot;, trControl = trainCtrl, preProcess = &quot;pca&quot;, data = training)
 confusionMatrix(testing$classe, predict(ldaModel, testing))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction    A    B    C    D    E
-##          A 1110    6    0    0    0
-##          B    5  744   10    0    0
-##          C    0    2  681    1    0
-##          D    0    0    8  619   16
-##          E    0    0    0   23  698
+## Prediction   A   B   C   D   E
+##          A 744 109 122 126  15
+##          B 183 318 147  64  47
+##          C 178  85 350  41  30
+##          D  52 129  91 318  53
+##          E  73 136 101  80 331
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.9819          
-##                  95% CI : (0.9772, 0.9858)
-##     No Information Rate : 0.2842          
+##                Accuracy : 0.5254          
+##                  95% CI : (0.5096, 0.5411)
+##     No Information Rate : 0.3135          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.9771          
+##                   Kappa : 0.3976          
+##  Mcnemar's Test P-Value : &lt; 2.2e-16       
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            0.6049  0.40927  0.43157  0.50556  0.69538
+## Specificity            0.8619  0.85982  0.89267  0.90134  0.88686
+## Pos Pred Value         0.6667  0.41897  0.51170  0.49456  0.45908
+## Neg Pred Value         0.8269  0.85493  0.85767  0.90518  0.95472
+## Prevalence             0.3135  0.19806  0.20673  0.16034  0.12134
+## Detection Rate         0.1897  0.08106  0.08922  0.08106  0.08437
+## Detection Prevalence   0.2845  0.19347  0.17436  0.16391  0.18379
+## Balanced Accuracy      0.7334  0.63454  0.66212  0.70345  0.79112</code></pre>
+<pre class="r"><code>rfModel &lt;- train(classe ~., method = &quot;rf&quot;, trControl = trainCtrl, preProcess = &quot;pca&quot;, data = training, prox = TRUE)</code></pre>
+<pre><code>## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range
+
+## Warning in randomForest.default(x, y, mtry = param$mtry, ...): invalid
+## mtry: reset to within valid range</code></pre>
+<pre class="r"><code>confusionMatrix(testing$classe, predict(rfModel, testing))</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1110    0    1    1    4
+##          B   11  740    5    0    3
+##          C    1   11  667    5    0
+##          D    1    0   19  620    3
+##          E    0    3    6    2  710
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9806          
+##                  95% CI : (0.9758, 0.9847)
+##     No Information Rate : 0.2863          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9755          
 ##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9955   0.9894   0.9742   0.9627   0.9776
-## Specificity            0.9979   0.9953   0.9991   0.9927   0.9928
-## Pos Pred Value         0.9946   0.9802   0.9956   0.9627   0.9681
-## Neg Pred Value         0.9982   0.9975   0.9944   0.9927   0.9950
-## Prevalence             0.2842   0.1917   0.1782   0.1639   0.1820
-## Detection Rate         0.2829   0.1897   0.1736   0.1578   0.1779
+## Sensitivity            0.9884   0.9814   0.9556   0.9873   0.9861
+## Specificity            0.9979   0.9940   0.9947   0.9930   0.9966
+## Pos Pred Value         0.9946   0.9750   0.9751   0.9642   0.9847
+## Neg Pred Value         0.9954   0.9956   0.9904   0.9976   0.9969
+## Prevalence             0.2863   0.1922   0.1779   0.1601   0.1835
+## Detection Rate         0.2829   0.1886   0.1700   0.1580   0.1810
 ## Detection Prevalence   0.2845   0.1935   0.1744   0.1639   0.1838
-## Balanced Accuracy      0.9967   0.9923   0.9867   0.9777   0.9852</code></pre>
-<p>Recall there are 60 variables in the data set. To reduce the number of predictors, data set was preprocessed using principal component analysis (PCA). Preprocessing was performed as an argument in the train function. Two predictive models were performed, each using k-fold (k = 10) cross validation. First predictive model was based on decision tree, or rpart method. The second model was based on linear discriminant analysis, or LDA method. Prediction accuracy of the first model was rather poor, merely at 28%. On the other hand, prediction via the LDA method was pretty good at 97% accuracy.</p>
-<p>That being said, it was concluded that the LDA method was acceptable.</p>
+## Balanced Accuracy      0.9931   0.9877   0.9752   0.9901   0.9913</code></pre>
+<p>Recall there are 60 variables in the data set. To reduce the number of predictors, data set was preprocessed using principal component analysis (PCA). Preprocessing was performed as an argument in the train function. Two predictive models were performed, each using k-fold (k = 10) cross validation. First predictive model was based on decision tree, or rpart method. The second model was based on linear discriminant analysis, or LDA method. Prediction accuracy of the first model was rather poor, merely at 45%. On the other hand, prediction via the LDA method was slightly better at 53% accuracy. The final model, using random forest approach performed best at 97% accuracy.</p>
+<p>That being said, it was concluded that the random forest method was accepted.</p>
+</div>
+<div id="quiz-prediction" class="section level2">
+<h2>Quiz prediction</h2>
+<pre class="r"><code>quiz &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings = c(&quot;&quot;, NA))
+quiz[, 3:159] &lt;- sapply(quiz[ , 3:159], as.numeric) # Forcing cols to numerics
+quiz &lt;- quiz[colSums(is.na(quiz)) == 0] 
+predict(rfModel, quiz[c(-1:-7, -ncol(quiz))])</code></pre>
+<pre><code>##  [1] B A B A A E D B A A A C B A E E A B B B
+## Levels: A B C D E</code></pre>
 </div>
 
 

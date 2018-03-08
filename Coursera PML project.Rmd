@@ -1,7 +1,7 @@
 ---
 title: "Practical ML Project"
 author: "Y.K Cheong"
-date: "3/3/2018"
+date: "3/7/2018"
 output: html_document
 ---
 
@@ -28,6 +28,7 @@ numColNA <- length(colnames(data)[colSums(is.na(data)) > 0])  # Determine number
 ## Data partitioning
 ```{r data partition}
 data <- data[colSums(is.na(data)) == 0]  # Keeping only cols without NAs
+data <- data[c(-1:-7)]  # Removing X, username and other irrelevant vars
 
 require(caret)
 inTrain <- createDataPartition(y = data$classe, p = .8, list = FALSE)
@@ -47,7 +48,18 @@ confusionMatrix(testing$classe, predict(treeModel, testing))
 
 ldaModel <- train(classe ~., method = "lda", trControl = trainCtrl, preProcess = "pca", data = training)
 confusionMatrix(testing$classe, predict(ldaModel, testing))
-```
-Recall there are 60 variables in the data set. To reduce the number of predictors, data set was preprocessed using principal component analysis (PCA). Preprocessing was performed as an argument in the train function. Two predictive models were performed, each using k-fold (k = 10) cross validation. First predictive model was based on decision tree, or rpart method. The second model was based on linear discriminant analysis, or LDA method. Prediction accuracy of the first model was rather poor, merely at 28%. On the other hand, prediction via the LDA method was pretty good at 97% accuracy.
 
-That being said, it was concluded that the LDA method was acceptable.
+rfModel <- train(classe ~., method = "rf", trControl = trainCtrl, preProcess = "pca", data = training, prox = TRUE)
+confusionMatrix(testing$classe, predict(rfModel, testing))
+```
+Recall there are 60 variables in the data set. To reduce the number of predictors, data set was preprocessed using principal component analysis (PCA). Preprocessing was performed as an argument in the train function. Two predictive models were performed, each using k-fold (k = 10) cross validation. First predictive model was based on decision tree, or rpart method. The second model was based on linear discriminant analysis, or LDA method. Prediction accuracy of the first model was rather poor, merely at 45%. On the other hand, prediction via the LDA method was slightly better at 53% accuracy. The final model, using random forest approach performed best at 97% accuracy.
+
+That being said, it was concluded that the random forest method was accepted.
+
+## Quiz prediction
+```{r quiz}
+quiz <- read.csv("pml-testing.csv", na.strings = c("", NA))
+quiz[, 3:159] <- sapply(quiz[ , 3:159], as.numeric) # Forcing cols to numerics
+quiz <- quiz[colSums(is.na(quiz)) == 0] 
+predict(rfModel, quiz[c(-1:-7, -ncol(quiz))])
+```
